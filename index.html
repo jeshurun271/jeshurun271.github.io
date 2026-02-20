@@ -1,19 +1,62 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>ML + NLP Student Tutor</title>
-
-<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.21.0"></script>
-<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/universal-sentence-encoder"></script>
+<title>Machine Learning + NLP Tutor</title>
 
 <style>
-body{margin:0;font-family:Arial;background:#020617;color:white;text-align:center;}
-textarea{width:90%;height:80px;padding:10px;border-radius:8px;}
-button{margin-top:10px;padding:10px;border:none;border-radius:8px;background:#38bdf8;}
-#log{margin:20px;background:#1e293b;padding:15px;border-radius:10px;text-align:left;}
-.bar{height:15px;background:#334155;border-radius:10px;}
-.fill{height:100%;background:#22c55e;width:0;}
-.highlight{color:#f87171;font-weight:bold;}
+body{
+margin:0;
+font-family:Arial;
+background:#020617;
+color:white;
+text-align:center;
+}
+
+textarea{
+width:90%;
+height:80px;
+padding:10px;
+border-radius:8px;
+font-size:16px;
+}
+
+button{
+padding:10px 20px;
+margin-top:10px;
+border:none;
+border-radius:8px;
+background:#38bdf8;
+font-size:16px;
+}
+
+#log{
+margin:20px auto;
+background:#1e293b;
+padding:15px;
+border-radius:10px;
+text-align:left;
+max-width:900px;
+}
+
+.bar{
+height:15px;
+background:#334155;
+border-radius:10px;
+margin:10px auto;
+width:90%;
+}
+
+.fill{
+height:100%;
+background:#22c55e;
+width:0%;
+}
+
+.highlight{
+color:#f87171;
+font-weight:bold;
+}
+
 </style>
 </head>
 
@@ -31,43 +74,62 @@ button{margin-top:10px;padding:10px;border:none;border-radius:8px;background:#38
 <div id="log"></div>
 
 <script>
-let model;
-use.load().then(m=>model=m);
 
-function wait(ms){return new Promise(r=>setTimeout(r,ms));}
+function wait(ms){
+return new Promise(r=>setTimeout(r,ms));
+}
 
 async function run(){
 
-let input=document.getElementById("text").value;
+let input=document.getElementById("text").value.toLowerCase();
 let log=document.getElementById("log");
-log.innerHTML="🤖 Reading text...<br>";
+log.innerHTML="";
+
+log.innerHTML+="🤖 I received your text.<br>";
 await wait(600);
 
-log.innerHTML+="📦 Breaking sentence into meaning vectors...<br>";
+let words=input.split(" ");
+log.innerHTML+="📦 I split it into words:<br>"+words.join(" , ")+"<br>";
 await wait(600);
 
-const emb=await model.embed([input]);
-let score=Math.random()*2-1;   // simulate classifier
+let pos=["love","good","great","nice","happy","excellent","awesome","amazing"];
+let neg=["hate","bad","late","worst","angry","poor","sad","terrible"];
 
-let percent=Math.round(Math.abs(score)*100);
+let score=0;
+let hits=[];
+
+words.forEach(w=>{
+if(pos.includes(w)){score++;hits.push(w);}
+if(neg.includes(w)){score--;hits.push(w);}
+});
+
+log.innerHTML+="🧠 I compared words with what I learned earlier.<br>";
+await wait(600);
+
+let highlighted=words.map(w=>{
+return hits.includes(w)?`<span class='highlight'>${w}</span>`:w;
+}).join(" ");
+
+log.innerHTML+="🔍 Important words:<br>"+highlighted+"<br>";
+await wait(600);
+
+let percent=Math.min(100,Math.abs(score)*25+40);
 document.getElementById("conf").style.width=percent+"%";
 
-let label=
-score>0.6?"Very Positive 😄":
-score>0.2?"Positive 🙂":
-score>-0.2?"Neutral 😐":
-score>-0.6?"Negative 😟":
-"Very Negative 😡";
-
-log.innerHTML+="🧠 Neural Network comparing patterns...<br>";
-await wait(600);
+let result=
+score>=3?"Very Positive 😄":
+score>=1?"Positive 🙂":
+score==0?"Neutral 😐":
+score<=-3?"Very Negative 😡":
+"Negative 😟";
 
 log.innerHTML+="📊 Confidence: "+percent+"%<br>";
 await wait(400);
 
-log.innerHTML+="✅ FINAL RESULT: <b>"+label+"</b>";
+log.innerHTML+="✅ FINAL RESULT: <b>"+result+"</b>";
 
 }
+
 </script>
 
 </body>
